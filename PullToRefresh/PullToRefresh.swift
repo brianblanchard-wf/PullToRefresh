@@ -22,7 +22,7 @@ public class PullToRefresh: NSObject {
     public var springDamping: CGFloat = 0.4
     public var initialSpringVelocity: CGFloat = 0.8
     public var animationOptions: UIViewAnimationOptions = [.CurveLinear]
-    public var refreshingOffset: CGFloat = 0.0
+    public var refreshOffset: CGFloat = 0
 
     let refreshView: UIView
     var action: (() -> ())?
@@ -105,11 +105,13 @@ public class PullToRefresh: NSObject {
                 }
             }
             let refreshViewHeight = refreshView.frame.size.height
+            let refreshOffset = min(self.refreshOffset + refreshViewHeight, UIScreen.mainScreen().bounds.height / 6);
+            print(refreshOffset);
 
             switch offset {
             case 0 where (state != .Loading): state = .Initial
-            case (-refreshViewHeight - refreshingOffset)...0 where (state != .Loading && state != .Finished):
-                state = .Releasing(progress: -offset / (refreshViewHeight + refreshingOffset))
+            case (-refreshOffset)...0 where (state != .Loading && state != .Finished):
+                state = .Releasing(progress: -offset / refreshOffset)
 
             case -1000...(-refreshViewHeight):
                 if state == .Releasing(progress: 1) && scrollView?.dragging == false {
